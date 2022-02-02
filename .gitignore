@@ -3,3 +3,4 @@
 *.DS_Store
 ReversiServer/GameLog.txt
 *.pyc
+ReversiBot_Python3/__pycache__
