@@ -1,0 +1,5 @@
+.vscode/settings.json
+*.class
+*.DS_Store
+ReversiServer/GameLog.txt
+*.pyc
