@@ -6,6 +6,7 @@ import math
 
 MAX = math.inf
 MIN = -math.inf
+MAX_SEARCH_DEPTH = 3
 
 class ReversiBot:
     def __init__(self, move_num):
@@ -36,24 +37,30 @@ class ReversiBot:
         print("Possible Moves: ", state.get_valid_moves())
         print("Score: ", self.get_score(state))
 
-        move = rand.choice(valid_moves) # Moves randomly...for now
-        print("move: ", move)
+        score, move = self.minimax(state, None, 0, True, MIN, MAX, MAX_SEARCH_DEPTH)
+        print("Best Score Found: ", score)
+        print("Best Move Found: ", move)
+
+        # move = rand.choice(valid_moves) # Moves randomly...for now
+        # print("move: ", move)
 
         return move
 
     # https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-4-alpha-beta-pruning/
-    def minimax(self, state, current_depth, maximizing_player, alpha, beta, max_depth):
+    def minimax(self, state, last_move, current_depth, maximizing_player, alpha, beta, max_depth):
         # If max depth is reached
         if current_depth == max_depth:
-            return self.heuristic(state.board)
+            return self.heuristic(state.board), last_move
 
         if maximizing_player:
             best = MIN
 
             # Recur for all possible moves for Maximizer
             for move in state.get_valid_moves():
+                if last_move is None:
+                    last_move = move
 
-                val = self.minimax(state.make_move(move), current_depth + 1, False, alpha, beta, max_depth)
+                val = self.minimax(state.make_move(move), last_move, current_depth + 1, False, alpha, beta, max_depth)
                 best = max(best, val)
                 alpha = max(alpha, best)
 
@@ -61,13 +68,15 @@ class ReversiBot:
                 if beta <= alpha:
                     break
 
-            return best
+            return best, last_move
 
         else:
             best = MAX
 
             # Recur for all possible moves for Minimizer
             for move in state.get_valid_moves():
+                if last_move is None:
+                    last_move = move
 
                 val = self.minimax(state.make_move(move), current_depth + 1, True, alpha, beta, max_depth)
                 best = min(best, val)
@@ -77,7 +86,7 @@ class ReversiBot:
                 if beta <= alpha:
                     break
 
-            return best
+            return best, last_move
 
     def heuristic(self, state):
         mobility = self.get_mobility(state)
