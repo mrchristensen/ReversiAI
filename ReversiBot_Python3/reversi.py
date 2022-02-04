@@ -29,6 +29,34 @@ class ReversiServerConnection:
         # The 7 - bit is necessary because of the way the server does indexing
         move_str = str(7 - move[0]) + '\n' + str(move[1]) + '\n'
         self.sock.send(move_str.encode('utf-8'))
+        
+def SimulateMoveMade(state, newMovePosition, playerNum):
+    newState = copy.deepcopy(state)
+    newState[newMovePosition[0]][newMovePosition[1]] = playerNum
+
+    #to the right
+    opponentPiecesToMove = []
+    for i in range(8 - newMovePosition[0] + 1, 8):
+        positionToEvaluate = state[i][newMovePosition[1]]
+        if(positionToEvaluate == 0):
+            break
+        elif(positionToEvaluate != playerNum):
+            position = (i, newMovePosition[1]) #appends the X,Y posiion of the opponent's piece to the list
+            opponentPiecesToMove.append(position)
+        elif(positionToEvaluate == playerNum):
+            #we've reached one of our pieces at the end of an unbroken line of opposing pieces- let's capture the opponent's pieces now
+            flipPieces(state, opponentPiecesToMove)
+            
+
+    return newState;
+
+def flipPieces(state, opponentStones):
+    for stone in opponentStones:
+        if(state[stone[0]][stone[1]] == 1):
+            state[stone[0]][stone[1]] = 2
+        elif(state[stone[0]][stone[1]] == 2):
+            state[stone[0]][stone[1]] = 1
+    return state
 
 class ReversiGame:
     def __init__(self, host, bot_move_num):
