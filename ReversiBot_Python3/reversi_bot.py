@@ -3,6 +3,7 @@ import numpy as np
 import random as rand
 import reversi
 import math
+import copy
 
 MAX = math.inf
 MIN = -math.inf
@@ -33,11 +34,12 @@ class ReversiBot:
         '''
         valid_moves = state.get_valid_moves()
 
+        print("Start of AI making a move")
         print("Number of Available Moves: ", self.get_mobility(state))
         print("Possible Moves: ", state.get_valid_moves())
-        print("Score: ", self.get_score(state))
+        print("Score: ", self.get_score_ratio(state))
 
-        score, move = self.minimax(state, None, 0, True, MIN, MAX, MAX_SEARCH_DEPTH)
+        score, move = self.minimax(copy.deepcopy(state), None, 0, True, MIN, MAX, MAX_SEARCH_DEPTH)
         print("Best Score Found: ", score)
         print("Best Move Found: ", move)
 
@@ -48,9 +50,13 @@ class ReversiBot:
 
     # https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-4-alpha-beta-pruning/
     def minimax(self, state, last_move, current_depth, maximizing_player, alpha, beta, max_depth):
+        print("Start of Minimax - Depth: ", current_depth)
+        print("Maximizing Player: ", maximizing_player)
+        print("List of valid moves: ", state.get_valid_moves())
+
         # If max depth is reached
         if current_depth == max_depth:
-            return self.heuristic(state.board), last_move
+            return self.heuristic(state), last_move
 
         if maximizing_player:
             best = MIN
@@ -60,8 +66,9 @@ class ReversiBot:
                 if last_move is None:
                     last_move = move
 
-                val = self.minimax(state.make_move(move), last_move, current_depth + 1, False, alpha, beta, max_depth)
-                best = max(best, val)
+                best_score, previous_last_move = self.minimax(copy.deepcopy(state).simulate_move(move), last_move, current_depth + 1, False, alpha, beta, max_depth)
+                print("best_score:", best_score)
+                best = max(best, best_score)
                 alpha = max(alpha, best)
 
                 # Prune if the found alpha is bigger or equal to beta
@@ -78,8 +85,8 @@ class ReversiBot:
                 if last_move is None:
                     last_move = move
 
-                val = self.minimax(state.make_move(move), current_depth + 1, True, alpha, beta, max_depth)
-                best = min(best, val)
+                best_score, previous_last_move = self.minimax(copy.deepcopy(state).simulate_move(move), last_move, current_depth + 1, True, alpha, beta, max_depth)
+                best = min(best, best_score)
                 beta = min(beta, best)
 
                 # Prune if the found best is less than or equal to alpha
@@ -90,7 +97,7 @@ class ReversiBot:
 
     def heuristic(self, state):
         mobility = self.get_mobility(state)
-        score = self.get_score(state)
+        score = self.get_score_ratio(state)
 
         return score + mobility
 
@@ -100,7 +107,7 @@ class ReversiBot:
         '''
         return len(state.get_valid_moves())
 
-    def get_score(self, state):
+    def get_score_ratio(self, state):
         '''
         Returns the score comparted to the enemies (as a tuple)
         '''
@@ -115,5 +122,8 @@ class ReversiBot:
         our_score = np.count_nonzero(state.board == player)
         enemy_score = np.count_nonzero(state.board == enemy)
 
-        return our_score, enemy_score
+        if enemy_score == 0:  # Make sure we are not dividing by zero
+            return math.inf
+
+        return our_score / enemy_score
 

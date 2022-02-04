@@ -114,62 +114,69 @@ class ReversiGameState:
 
         return valid_moves
 
-    def make_move(self, new_move):
+    def simulate_move(self, new_move):
         print("New move position:")
         print(new_move[0], ",", new_move[1])
-        newState = copy.deepcopy(self)
-        newBoard = newState.board
-        newBoard[new_move[0]][new_move[1]] = self.turn  # Put player's new move into the state
+        new_state = copy.deepcopy(self)
+        new_board = new_state.board
+        new_board[new_move[0]][new_move[1]] = self.turn  # Put player's new move into the state
         print("State before captures:")
-        print(newBoard)
+        print(new_board)
         print("Checking up")
-        newBoard = self.check_direction(newBoard, new_move, 0, 1)
+        new_board = self.check_direction(new_board, new_move, 0, 1)
         print("Checking up/right")
-        newBoard = self.check_direction(newBoard, new_move, 1, 1)
+        new_board = self.check_direction(new_board, new_move, 1, 1)
         print("Checking right")
-        newBoard = self.check_direction(newBoard, new_move, 1, 0)
+        new_board = self.check_direction(new_board, new_move, 1, 0)
         print("Checking down/right")
-        newBoard = self.check_direction(newBoard, new_move, 1, -1)
+        new_board = self.check_direction(new_board, new_move, 1, -1)
         print("Checking down")
-        newBoard = self.check_direction(newBoard, new_move, 0, -1)
+        new_board = self.check_direction(new_board, new_move, 0, -1)
         print("Checking down/left")
-        newBoard = self.check_direction(newBoard, new_move, -1, -1)
+        new_board = self.check_direction(new_board, new_move, -1, -1)
         print("Checking left")
-        newBoard = self.check_direction(newBoard, new_move, -1, 0)
+        new_board = self.check_direction(new_board, new_move, -1, 0)
         print("Checking up/left")
-        newBoard = self.check_direction(newBoard, new_move, -1, 1)
+        new_board = self.check_direction(new_board, new_move, -1, 1)
         print("State after captures")
-        print(newBoard)
+        print(new_board)
 
-        newState.board = newBoard
-        return newState
+        new_state.board = new_board
+
+        # Change the turn state of the board to the other player
+        if new_state.turn == 1:
+            new_state.turn = 2
+        else:
+            new_state.turn = 1
+
+        return new_state
 
     def check_direction(self, board, new_move, deltaX, deltaY):
-        currentPosition = [0] * 2
-        currentPosition[0] = new_move[0] + deltaX
-        currentPosition[1] = new_move[1] + deltaY
-        spacesToChange = []
+        current_position = [0] * 2
+        current_position[0] = new_move[0] + deltaX
+        current_position[1] = new_move[1] + deltaY
+        spaces_to_change = []
         for i in range (0, 8):
             #check for out-of-bounds
-            if(currentPosition[0] > 7 or currentPosition[0] < 0 or currentPosition[1] > 7 or currentPosition[1] < 0):
+            if(current_position[0] > 7 or current_position[0] < 0 or current_position[1] > 7 or current_position[1] < 0):
                 break
             #if zero, no pieces can be captured in this direction
-            if(board[currentPosition[0]][currentPosition[1]] == 0):
+            if(board[current_position[0]][current_position[1]] == 0):
                 break
             #if the space is not equal to our number, we add it to the list of pieces to switch & advance to the next space
-            if(board[currentPosition[0]][currentPosition[1]] != self.turn):
-                newSpace = (currentPosition[0], currentPosition[1])
-                spacesToChange.append(newSpace)
-                currentPosition[0] += deltaX
-                currentPosition[1] += deltaY
+            if(board[current_position[0]][current_position[1]] != self.turn):
+                newSpace = (current_position[0], current_position[1])
+                spaces_to_change.append(newSpace)
+                current_position[0] += deltaX
+                current_position[1] += deltaY
             #if the space is equal to our number, we turn all the pieces inside spacesToChange
-            if(board[currentPosition[0]][currentPosition[1]] == self.turn):
-                self.flipPieces(board, spacesToChange)
+            if(board[current_position[0]][current_position[1]] == self.turn):
+                self.flipPieces(board, spaces_to_change)
             break
 
         return board
-            
-            
+
+
 
 
 
