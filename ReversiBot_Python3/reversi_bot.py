@@ -1,3 +1,4 @@
+from ast import Pass
 import numpy as np
 import random as rand
 import reversi
@@ -27,5 +28,40 @@ class ReversiBot:
         '''
         valid_moves = state.get_valid_moves()
 
+        print("Number of Available Moves: ", self.get_mobility(state))
+        print("Score: ", self.get_score(state))
+
         move = rand.choice(valid_moves) # Moves randomly...for now
+        print("move: ", move)
+
         return move
+
+    def heuristic(self, state):
+        mobility = self.get_mobility(state)
+        score = self.get_score(state)
+
+        return score + mobility
+
+    def get_mobility(self, state):
+        '''
+        Get the number of valid moves at this state
+        '''
+        return len(state.get_valid_moves())
+
+    def get_score(self, state):
+        '''
+        Returns the score comparted to the enemies (as a tuple)
+        '''
+        player = state.turn
+        enemy = None
+
+        if player == 1:
+            enemy = 2
+        else:
+            enemy = 1
+
+        our_score = np.count_nonzero(state.board == player)
+        enemy_score = np.count_nonzero(state.board == enemy)
+
+        return our_score, enemy_score
+
