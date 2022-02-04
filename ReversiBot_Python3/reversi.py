@@ -115,29 +115,68 @@ class ReversiGameState:
         return valid_moves
 
     def make_move(self, new_move):
+        print("New move position:")
+        print(new_move[0], ",", new_move[1])
         newState = copy.deepcopy(self)
-        newState[new_move[0]][new_move[1]] = self.turn  # Put player's new move into the state
+        newBoard = newState.board
+        newBoard[new_move[0]][new_move[1]] = self.turn  # Put player's new move into the state
+        print("State before captures:")
+        print(newBoard)
+        print("Checking up")
+        newBoard = self.check_direction(newBoard, new_move, 0, 1)
+        print("Checking up/right")
+        newBoard = self.check_direction(newBoard, new_move, 1, 1)
+        print("Checking right")
+        newBoard = self.check_direction(newBoard, new_move, 1, 0)
+        print("Checking down/right")
+        newBoard = self.check_direction(newBoard, new_move, 1, -1)
+        print("Checking down")
+        newBoard = self.check_direction(newBoard, new_move, 0, -1)
+        print("Checking down/left")
+        newBoard = self.check_direction(newBoard, new_move, -1, -1)
+        print("Checking left")
+        newBoard = self.check_direction(newBoard, new_move, -1, 0)
+        print("Checking up/left")
+        newBoard = self.check_direction(newBoard, new_move, -1, 1)
+        print("State after captures")
+        print(newBoard)
 
-        # Look to the right
-        opponentPiecesToMove = []
-        for i in range(new_move[0] + 1, 8):
-            positionToEvaluate = state[i][new_move[1]]
-            if(positionToEvaluate == 0):
-                break
-            elif(positionToEvaluate != playerNum):
-                position = (i, new_move[1]) # Appends the X,Y position of the opponent's piece to the list
-                opponentPiecesToMove.append(position)
-            elif(positionToEvaluate == playerNum):
-                # We've reached one of our pieces at the end of an unbroken line of opposing pieces- let's capture the opponent's pieces now
-                newState = self.flipPieces(newState, opponentPiecesToMove)
-
-
+        newState.board = newBoard
         return newState
 
-    def flipPieces(self, state, opponentStones):
+    def check_direction(self, board, new_move, deltaX, deltaY):
+        currentPosition = [0] * 2
+        currentPosition[0] = new_move[0] + deltaX
+        currentPosition[1] = new_move[1] + deltaY
+        spacesToChange = []
+        for i in range (0, 8):
+            #check for out-of-bounds
+            if(currentPosition[0] > 7 or currentPosition[0] < 0 or currentPosition[1] > 7 or currentPosition[1] < 0):
+                break
+            #if zero, no pieces can be captured in this direction
+            if(board[currentPosition[0]][currentPosition[1]] == 0):
+                break
+            #if the space is not equal to our number, we add it to the list of pieces to switch & advance to the next space
+            if(board[currentPosition[0]][currentPosition[1]] != self.turn):
+                newSpace = (currentPosition[0], currentPosition[1])
+                spacesToChange.append(newSpace)
+                currentPosition[0] += deltaX
+                currentPosition[1] += deltaY
+            #if the space is equal to our number, we turn all the pieces inside spacesToChange
+            if(board[currentPosition[0]][currentPosition[1]] == self.turn):
+                self.flipPieces(board, spacesToChange)
+            break
+
+        return board
+            
+            
+
+
+
+    def flipPieces(self, board, opponentStones):
         for stone in opponentStones:
-            if(state[stone[0]][stone[1]] == 1):
-                state[stone[0]][stone[1]] = 2
-            elif(state[stone[0]][stone[1]] == 2):
-                state[stone[0]][stone[1]] = 1
-        return state
+            if(board[stone[0]][stone[1]] == 1):
+                board[stone[0]][stone[1]] = 2
+            elif(board[stone[0]][stone[1]] == 2):
+                board[stone[0]][stone[1]] = 1
+        return board
