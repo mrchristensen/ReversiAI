@@ -98,6 +98,7 @@ class ReversiBot:
     def heuristic(self, state):
         mobility = self.get_mobility(state)
         score = self.get_score_ratio(state)
+        # todo: maybe check to see if mobility is infinity and return infinity, because that means we'll have all their pieces and instantly win
 
         return score + mobility
 
