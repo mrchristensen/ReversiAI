@@ -132,7 +132,7 @@ class ReversiGameState:
                 newState = self.flipPieces(newState, opponentPiecesToMove)
 
 
-        return newState;
+        return newState
 
     def flipPieces(self, state, opponentStones):
         for stone in opponentStones:
