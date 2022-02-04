@@ -2,6 +2,10 @@ from ast import Pass
 import numpy as np
 import random as rand
 import reversi
+import math
+
+MAX = math.inf
+MIN = -math.inf
 
 class ReversiBot:
     def __init__(self, move_num):
@@ -29,12 +33,51 @@ class ReversiBot:
         valid_moves = state.get_valid_moves()
 
         print("Number of Available Moves: ", self.get_mobility(state))
+        print("Possible Moves: ", state.get_valid_moves())
         print("Score: ", self.get_score(state))
 
         move = rand.choice(valid_moves) # Moves randomly...for now
         print("move: ", move)
 
         return move
+
+    # https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-4-alpha-beta-pruning/
+    def minimax(self, state, current_depth, maximizing_player, alpha, beta, max_depth):
+        # If max depth is reached
+        if current_depth == max_depth:
+            return self.heuristic(state.board)
+
+        if maximizing_player:
+            best = MIN
+
+            # Recur for all possible moves for Maximizer
+            for move in state.get_valid_moves():
+
+                val = self.minimax(state.make_move(move), current_depth + 1, False, alpha, beta, max_depth)
+                best = max(best, val)
+                alpha = max(alpha, best)
+
+                # Prune if the found alpha is bigger or equal to beta
+                if beta <= alpha:
+                    break
+
+            return best
+
+        else:
+            best = MAX
+
+            # Recur for all possible moves for Minimizer
+            for move in state.get_valid_moves():
+
+                val = self.minimax(state.make_move(move), current_depth + 1, True, alpha, beta, max_depth)
+                best = min(best, val)
+                beta = min(beta, best)
+
+                # Prune if the found best is less than or equal to alpha
+                if beta <= alpha:
+                    break
+
+            return best
 
     def heuristic(self, state):
         mobility = self.get_mobility(state)
