@@ -115,31 +115,31 @@ class ReversiGameState:
         return valid_moves
 
     def simulate_move(self, new_move):
-        print("New move position:")
-        print(new_move[0], ",", new_move[1])
+        # print("New move position:")
+        # print(new_move[0], ",", new_move[1])
         new_state = copy.deepcopy(self)
         new_board = new_state.board
         new_board[new_move[0]][new_move[1]] = self.turn  # Put player's new move into the state
-        print("State before captures:")
-        print(new_board)
-        print("Checking up")
+        # print("State before captures:")
+        # print(new_board)
+        # print("Checking up")
         new_board = self.check_direction(new_board, new_move, 0, 1)
-        print("Checking up/right")
+        # print("Checking up/right")
         new_board = self.check_direction(new_board, new_move, 1, 1)
-        print("Checking right")
+        # print("Checking right")
         new_board = self.check_direction(new_board, new_move, 1, 0)
-        print("Checking down/right")
+        # print("Checking down/right")
         new_board = self.check_direction(new_board, new_move, 1, -1)
-        print("Checking down")
+        # print("Checking down")
         new_board = self.check_direction(new_board, new_move, 0, -1)
-        print("Checking down/left")
+        # print("Checking down/left")
         new_board = self.check_direction(new_board, new_move, -1, -1)
-        print("Checking left")
+        # print("Checking left")
         new_board = self.check_direction(new_board, new_move, -1, 0)
-        print("Checking up/left")
+        # print("Checking up/left")
         new_board = self.check_direction(new_board, new_move, -1, 1)
-        print("State after captures")
-        print(new_board)
+        # print("State after captures")
+        # print(new_board)
 
         new_state.board = new_board
 
