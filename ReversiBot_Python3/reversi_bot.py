@@ -7,7 +7,9 @@ import copy
 
 MAX = math.inf
 MIN = -math.inf
-MAX_SEARCH_DEPTH = 3
+MAX_SEARCH_DEPTH = 5
+SCORE_RATIO_NORMALIZER = 100.0 / 63.0
+MOBILITY_NORMALIZER = 100.0 / 13.0
 
 class ReversiBot:
     def __init__(self, move_num):
@@ -35,11 +37,11 @@ class ReversiBot:
         valid_moves = state.get_valid_moves()
 
         print("Start of AI making a move")
-        print("Number of Available Moves: ", self.get_mobility(state))
-        print("Possible Moves: ", state.get_valid_moves())
-        print("Score: ", self.get_score_ratio(state))
+        # print("Number of Available Moves: ", self.get_mobility(state))
+        # print("Possible Moves: ", state.get_valid_moves())
+        # print("Score: ", self.get_score_ratio(state))
 
-        score, move = self.minimax(copy.deepcopy(state), None, 0, True, MIN, MAX, MAX_SEARCH_DEPTH)
+        score, move = self.minimax(copy.deepcopy(state), 0, True, MIN, MAX, MAX_SEARCH_DEPTH)
         print("Best Score Found: ", score)
         print("Best Move Found: ", move)
 
@@ -49,58 +51,67 @@ class ReversiBot:
         return move
 
     # https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-4-alpha-beta-pruning/
-    def minimax(self, state, last_move, current_depth, maximizing_player, alpha, beta, max_depth):
-        print("Start of Minimax - Depth: ", current_depth)
-        print("Maximizing Player: ", maximizing_player)
-        print("List of valid moves: ", state.get_valid_moves())
+    def minimax(self, state, current_depth, maximizing_player, alpha, beta, max_depth):
+        # print("Start of Minimax - Depth: ", current_depth)
+        # print("Maximizing Player: ", maximizing_player)
+        # print("List of valid moves: ", state.get_valid_moves())
 
         # If max depth is reached
-        if current_depth == max_depth:
-            return self.heuristic(state), last_move
+        if current_depth == max_depth or len(state.get_valid_moves()) == 0:
+            print("Score: ", self.heuristic(state), " at depth: ", current_depth)
+            return self.heuristic(state), None
+
 
         if maximizing_player:
+            # print("Start of maximize player's turn")
             best = MIN
+            best_move = None
 
             # Recur for all possible moves for Maximizer
             for move in state.get_valid_moves():
-                if last_move is None:
-                    last_move = move
+                best_score, previous_last_move = self.minimax(copy.deepcopy(state).simulate_move(move), current_depth + 1, False, alpha, beta, max_depth)
 
-                best_score, previous_last_move = self.minimax(copy.deepcopy(state).simulate_move(move), last_move, current_depth + 1, False, alpha, beta, max_depth)
-                print("best_score:", best_score)
-                best = max(best, best_score)
+                if best_score > best:
+                    best = best_score
+                    best_move = move
+
+                # best = max(best, best_score)
                 alpha = max(alpha, best)
 
                 # Prune if the found alpha is bigger or equal to beta
                 if beta <= alpha:
                     break
 
-            return best, last_move
+            return best, best_move
 
         else:
+            # print("Start of minamizing player's turn")
             best = MAX
 
             # Recur for all possible moves for Minimizer
             for move in state.get_valid_moves():
-                if last_move is None:
-                    last_move = move
+                best_score, previous_last_move = self.minimax(copy.deepcopy(state).simulate_move(move), current_depth + 1, True, alpha, beta, max_depth)
 
-                best_score, previous_last_move = self.minimax(copy.deepcopy(state).simulate_move(move), last_move, current_depth + 1, True, alpha, beta, max_depth)
-                best = min(best, best_score)
+                if best_score < best:
+                    best = best_score
+                    best_move = move
+
+                # best = min(best, best_score)
                 beta = min(beta, best)
 
                 # Prune if the found best is less than or equal to alpha
                 if beta <= alpha:
                     break
 
-            return best, last_move
+            return best, move
 
     def heuristic(self, state):
-        mobility = self.get_mobility(state)
-        score = self.get_score_ratio(state)
+        # mobility = self.get_mobility(state)
+        score = self.get_score_difference(state)
         # todo: maybe check to see if mobility is infinity and return infinity, because that means we'll have all their pieces and instantly win
 
-        return score + mobility
+        return score # + mobility
+        # return (score_ratio * SCORE_RATIO_NORMALIZER * (.75)) + (mobility * MOBILITY_NORMALIZER * (.25))
 
     def get_mobility(self, state):
         '''
@@ -108,7 +119,7 @@ class ReversiBot:
         '''
         return len(state.get_valid_moves())
 
-    def get_score_ratio(self, state):
+    def get_score_difference(self, state):
         '''
         Returns the score comparted to the enemies (as a tuple)
         '''
@@ -126,5 +137,5 @@ class ReversiBot:
         if enemy_score == 0:  # Make sure we are not dividing by zero
             return math.inf
 
-        return our_score / enemy_score
+        return our_score - enemy_score
 
