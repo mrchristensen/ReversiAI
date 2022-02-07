@@ -161,18 +161,19 @@ class ReversiGameState:
             if(current_position[0] > 7 or current_position[0] < 0 or current_position[1] > 7 or current_position[1] < 0):
                 break
             #if zero, no pieces can be captured in this direction
-            if(board[current_position[0]][current_position[1]] == 0):
+            elif(board[current_position[0]][current_position[1]] == 0):
                 break
             #if the space is not equal to our number, we add it to the list of pieces to switch & advance to the next space
-            if(board[current_position[0]][current_position[1]] != self.turn):
+            elif(board[current_position[0]][current_position[1]] != self.turn):
                 newSpace = (current_position[0], current_position[1])
                 spaces_to_change.append(newSpace)
                 current_position[0] += deltaX
                 current_position[1] += deltaY
+                continue
             #if the space is equal to our number, we turn all the pieces inside spacesToChange
-            if(board[current_position[0]][current_position[1]] == self.turn):
+            elif(board[current_position[0]][current_position[1]] == self.turn):
                 self.flipPieces(board, spaces_to_change)
-            break
+                break
 
         return board
 
