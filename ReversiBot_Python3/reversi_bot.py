@@ -69,9 +69,6 @@ class ReversiBot:
 
             # Recur for all possible moves for Maximizer
             for move in state.get_valid_moves():
-                if current_depth == 0:
-                    print("1 boi!")
-                    self.get_mobility(state)
                 best_score, previous_last_move = self.minimax(copy.deepcopy(state).simulate_move(move), current_depth + 1, False, alpha, beta, max_depth)
 
                 if best_score > best:
@@ -111,11 +108,15 @@ class ReversiBot:
     def heuristic(self, state):
         mobility = self.get_mobility(state)
         score = self.get_score_difference(state)
+        corner_weight = self.get_corner_heuristic(state)
+        x_and_c_weight = self.get_x_and_c_heuristic(state)
         # todo: maybe check to see if mobility is infinity and return infinity, because that means we'll have all their pieces and instantly win
         print("mobility: ", mobility)
         print("score: ", score)
+        print("corner_weight: ", corner_weight)
+        print("x_and_c_weight: ", x_and_c_weight)
 
-        return score + mobility
+        return score + mobility + corner_weight + x_and_c_weight
         # return (score_ratio * SCORE_RATIO_NORMALIZER * (.75)) + (mobility * MOBILITY_NORMALIZER * (.25))
 
     def get_mobility(self, state):
@@ -150,3 +151,50 @@ class ReversiBot:
 
         return 100 * (our_score - enemy_score) / (our_score + enemy_score)
 
+    def get_corner_heuristic(self, state):
+        corner_squares = {(0,0), (0,7), (7,0), (7,7)}
+        board = state.board
+        player = state.turn
+        number_player_corners = 0
+        number_enemy_corners = 0
+
+        enemy = None
+        if player == 1:
+            enemy = 2
+        else:
+            enemy = 1
+
+        for square in corner_squares:
+            if board[square[0]][square[1]] == player:
+                number_player_corners += 1
+            elif board[square[0]][square[1]] == enemy:
+                number_enemy_corners += 1
+
+        if number_player_corners + number_enemy_corners == 0:
+            return 0
+
+        return 100 * (number_player_corners - number_enemy_corners) / (number_player_corners + number_enemy_corners)
+
+    def get_x_and_c_heuristic(self, state):
+        x_and_c_squares = {(1,0), (0,1), (1,1), (6,7), (7,6), (6,6), (0,6), (7,1), (6,1), (0,6), (1,6), (1,7)}
+        board = state.board
+        player = state.turn
+        number_player_x_and_c = 0
+        number_enemy_x_and_c = 0
+
+        enemy = None
+        if player == 1:
+            enemy = 2
+        else:
+            enemy = 1
+
+        for square in x_and_c_squares:
+            if board[square[0]][square[1]] == player:
+                number_player_x_and_c += 1
+            elif board[square[0]][square[1]] == enemy:
+                number_enemy_x_and_c += 1
+
+        if number_player_x_and_c + number_enemy_x_and_c == 0:
+            return 0
+
+        return 100 * (number_enemy_x_and_c - number_player_x_and_c) / (number_player_x_and_c + number_enemy_x_and_c)
