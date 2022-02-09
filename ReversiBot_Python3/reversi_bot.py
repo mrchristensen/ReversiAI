@@ -7,7 +7,7 @@ import copy
 
 MAX = math.inf
 MIN = -math.inf
-MAX_SEARCH_DEPTH = 3
+MAX_SEARCH_DEPTH = 5
 SCORE_RATIO_NORMALIZER = 100.0 / 63.0
 MOBILITY_NORMALIZER = 100.0 / 13.0
 
@@ -45,6 +45,7 @@ class ReversiBot:
         print("Best Score Found: ", score)
         print("Best Move Found: ", move)
 
+
         # move = rand.choice(valid_moves) # Moves randomly...for now
         # print("move: ", move)
 
@@ -58,11 +59,12 @@ class ReversiBot:
 
         # If max depth is reached
         if current_depth == max_depth or len(state.get_valid_moves()) == 0:
-            print("Score: ", self.heuristic(state), " at depth: ", current_depth)
+            # print("Score: ", self.heuristic(state), " at depth: ", current_depth)
             return self.heuristic(state), None
 
 
         if maximizing_player:
+
             # print("Start of maximize player's turn")
             best = MIN
             best_move = None
@@ -111,12 +113,12 @@ class ReversiBot:
         corner_weight = self.get_corner_heuristic(state)
         x_and_c_weight = self.get_x_and_c_heuristic(state)
         # todo: maybe check to see if mobility is infinity and return infinity, because that means we'll have all their pieces and instantly win
-        print("mobility: ", mobility)
-        print("score: ", score)
-        print("corner_weight: ", corner_weight)
-        print("x_and_c_weight: ", x_and_c_weight)
+        # print("mobility: ", mobility)
+        # print("score: ", score)
+        # print("corner_weight: ", corner_weight)
+        # print("x_and_c_weight: ", x_and_c_weight)
 
-        return score + mobility + corner_weight + x_and_c_weight
+        return (1.0) * score + (0.375) * mobility + (2.0) * corner_weight + (0.5) * x_and_c_weight
         # return (score_ratio * SCORE_RATIO_NORMALIZER * (.75)) + (mobility * MOBILITY_NORMALIZER * (.25))
 
     def get_mobility(self, state):
