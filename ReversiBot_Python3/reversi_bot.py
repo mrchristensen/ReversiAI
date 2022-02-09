@@ -7,7 +7,7 @@ import copy
 
 MAX = math.inf
 MIN = -math.inf
-MAX_SEARCH_DEPTH = 5
+MAX_SEARCH_DEPTH = 3
 SCORE_RATIO_NORMALIZER = 100.0 / 63.0
 MOBILITY_NORMALIZER = 100.0 / 13.0
 
@@ -109,19 +109,26 @@ class ReversiBot:
             return best, move
 
     def heuristic(self, state):
-        # mobility = self.get_mobility(state)
+        mobility = self.get_mobility(state)
         score = self.get_score_difference(state)
         # todo: maybe check to see if mobility is infinity and return infinity, because that means we'll have all their pieces and instantly win
+        print("mobility: ", mobility)
+        print("score: ", score)
 
-        return score # + mobility
+        return score + mobility
         # return (score_ratio * SCORE_RATIO_NORMALIZER * (.75)) + (mobility * MOBILITY_NORMALIZER * (.25))
 
     def get_mobility(self, state):
         '''
         Get the number of valid moves at this state
         '''
+        number_valid_moves = len(state.get_valid_moves())
+        number_valid_enemy_moves = len(state.get_valid_enemy_moves())
 
-        return 100 * (len(state.get_valid_moves()) - len(state.get_valid_enemy_moves())) / (len(state.get_valid_moves()) + len(state.get_valid_enemy_moves()))
+        if number_valid_moves + number_valid_enemy_moves == 0:
+            return 0
+
+        return 100 * (number_valid_moves - number_valid_enemy_moves) / (number_valid_moves + number_valid_enemy_moves)
 
     def get_score_difference(self, state):
         '''
@@ -141,5 +148,5 @@ class ReversiBot:
         if enemy_score == 0:  # Make sure we are not dividing by zero
             return math.inf
 
-        return our_score - enemy_score
+        return 100 * (our_score - enemy_score) / (our_score + enemy_score)
 
