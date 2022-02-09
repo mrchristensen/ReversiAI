@@ -76,6 +76,31 @@ class ReversiGameState:
                                        xdir, ydir,
                                        could_capture + 1)
 
+    def enemy_capture_will_occur(self, row, col, xdir, ydir, could_capture=0):
+        enemy = None
+        if self.turn == 1:
+            enemy = 2
+        else:
+            enemy = 1
+
+        # We shouldn't be able to leave the board
+        if not self.space_is_on_board(row, col):
+            return False
+
+        # If we're on a space associated with our turn and we have pieces
+        # that could be captured return True. If there are no pieces that
+        # could be captured that means we have consecutive bot pieces.
+        if self.board[row, col] == enemy:
+            return could_capture != 0
+
+        if self.space_is_unoccupied(row, col):
+            return False
+
+        return self.enemy_capture_will_occur(row + ydir,
+                                       col + xdir,
+                                       xdir, ydir,
+                                       could_capture + 1)
+
     def space_is_on_board(self, row, col):
         return 0 <= row < self.board_dim and 0 <= col < self.board_dim
 
@@ -96,6 +121,16 @@ class ReversiGameState:
                     if self.capture_will_occur(row + ydir, col + xdir, xdir, ydir):
                         return True
 
+    def is_valid_enemy_move(self, row, col):
+        if self.space_is_available(row, col):
+            # A valid move results in capture
+            for xdir in range(-1, 2):
+                for ydir in range(-1, 2):
+                    if xdir == ydir == 0:
+                        continue
+                    if self.enemy_capture_will_occur(row + ydir, col + xdir, xdir, ydir):
+                        return True
+
     def get_valid_moves(self):
         valid_moves = []
 
@@ -110,6 +145,24 @@ class ReversiGameState:
             for row in range(self.board_dim):
                 for col in range(self.board_dim):
                     if self.is_valid_move(row, col):
+                        valid_moves.append((row, col))
+
+        return valid_moves
+
+    def get_valid_enemy_moves(self):
+        valid_moves = []
+
+        # If the middle four squares aren't taken the remaining ones are all
+        # that is available
+        if 0 in self.board[3:5, 3:5]:
+            for row in range(3, 5):
+                for col in range(3, 5):
+                    if self.board[row, col] == 0:
+                        valid_moves.append((row, col))
+        else:
+            for row in range(self.board_dim):
+                for col in range(self.board_dim):
+                    if self.is_valid_enemy_move(row, col):
                         valid_moves.append((row, col))
 
         return valid_moves

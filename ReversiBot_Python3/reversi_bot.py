@@ -69,6 +69,9 @@ class ReversiBot:
 
             # Recur for all possible moves for Maximizer
             for move in state.get_valid_moves():
+                if current_depth == 0:
+                    print("1 boi!")
+                    self.get_mobility(state)
                 best_score, previous_last_move = self.minimax(copy.deepcopy(state).simulate_move(move), current_depth + 1, False, alpha, beta, max_depth)
 
                 if best_score > best:
@@ -117,7 +120,8 @@ class ReversiBot:
         '''
         Get the number of valid moves at this state
         '''
-        return len(state.get_valid_moves())
+
+        return 100 * (len(state.get_valid_moves()) - len(state.get_valid_enemy_moves())) / (len(state.get_valid_moves()) + len(state.get_valid_enemy_moves()))
 
     def get_score_difference(self, state):
         '''
