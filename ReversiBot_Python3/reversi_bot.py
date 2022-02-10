@@ -7,7 +7,7 @@ import copy
 
 MAX = math.inf
 MIN = -math.inf
-MAX_SEARCH_DEPTH = 5
+MAX_SEARCH_DEPTH = 4
 SCORE_RATIO_NORMALIZER = 100.0 / 63.0
 MOBILITY_NORMALIZER = 100.0 / 13.0
 
