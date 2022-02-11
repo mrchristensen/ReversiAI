@@ -15,7 +15,7 @@ state = [[0 for x in range(8)] for y in range(8)] # state[0][0] is the bottom le
 def move(validMoves):
     # just return a random move
     myMove = randint(0,len(validMoves)-1)
-    
+
     return myMove
 
 #establishes a connection with the server
@@ -25,9 +25,9 @@ def initClient(me,thehost):
     server_address = (thehost, 3333+me)
     print >> sys.stderr, 'starting up on %s port %s' % server_address
     sock.connect(server_address)
-    
+
     info = sock.recv(1024)
-    
+
     print info
 
     return sock
@@ -65,7 +65,7 @@ def checkDirection(row,col,incx,incy,me):
     for i in range(1,8):
         r = row+incy*i
         c = col+incx*i
-    
+
         if ((r < 0) or (r > 7) or (c < 0) or (c > 7)):
             break
 
@@ -87,7 +87,7 @@ def checkDirection(row,col,incx,incy,me):
                 if ((sequence[i] == 2) and (count > 0)):
                     return True
                 break
-    
+
     return False
 
 def couldBe(row, col, me):
@@ -105,7 +105,7 @@ def couldBe(row, col, me):
 def getValidMoves(round, me):
     validMoves = []
     print "Round: " + str(round)
-    
+
     for i in range(8):
         print state[i]
 
@@ -130,22 +130,22 @@ def getValidMoves(round, me):
 
 # main function that (1) establishes a connection with the server, and then plays whenever it is this player's turn
 def playGame(me, thehost):
-    
+
     # create a random number generator
-    
+
     sock = initClient(me, thehost)
-    
+
     while (True):
         print "Read"
         status = readMessage(sock)
-    
+
         if (status[0] == me):
             print "Move";
             validMoves = getValidMoves(status[1], me)
             print validMoves
-            
+
             myMove = move(validMoves)
-        
+
             sel = str(validMoves[myMove][0]) + "\n" + str(validMoves[myMove][1]) + "\n";
             print "<" + sel + ">"
             sock.send(sel);
@@ -167,6 +167,6 @@ if __name__ == "__main__":
     print 'Argument List:', str(sys.argv)
 
     print str(sys.argv[1])
-    
+
     playGame(int(sys.argv[2]), sys.argv[1])
 

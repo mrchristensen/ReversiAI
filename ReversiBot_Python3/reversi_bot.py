@@ -11,12 +11,13 @@ MAX_SEARCH_DEPTH = 4
 SCORE_RATIO_NORMALIZER = 100.0 / 63.0
 MOBILITY_NORMALIZER = 100.0 / 13.0
 
+
 class ReversiBot:
     def __init__(self, move_num):
         self.move_num = move_num
 
     def make_move(self, state):
-        '''
+        """
         This is the only function that needs to be implemented for the lab!
         The bot should take a game state and return a move.
 
@@ -33,7 +34,7 @@ class ReversiBot:
         moves for that state is returned in the form of a list of tuples.
 
         Move should be a tuple (row, col) of the move you want the bot to make.
-        '''
+        """
         valid_moves = state.get_valid_moves()
 
         print("Start of AI making a move")
@@ -41,10 +42,11 @@ class ReversiBot:
         # print("Possible Moves: ", state.get_valid_moves())
         # print("Score: ", self.get_score_ratio(state))
 
-        score, move = self.minimax(copy.deepcopy(state), 0, True, MIN, MAX, MAX_SEARCH_DEPTH)
+        score, move = self.minimax(
+            copy.deepcopy(state), 0, True, MIN, MAX, MAX_SEARCH_DEPTH
+        )
         print("Best Score Found: ", score)
         print("Best Move Found: ", move)
-
 
         # move = rand.choice(valid_moves) # Moves randomly...for now
         # print("move: ", move)
@@ -62,7 +64,6 @@ class ReversiBot:
             # print("Score: ", self.heuristic(state), " at depth: ", current_depth)
             return self.heuristic(state), None
 
-
         if maximizing_player:
 
             # print("Start of maximize player's turn")
@@ -71,7 +72,14 @@ class ReversiBot:
 
             # Recur for all possible moves for Maximizer
             for move in state.get_valid_moves():
-                best_score, previous_last_move = self.minimax(copy.deepcopy(state).simulate_move(move), current_depth + 1, False, alpha, beta, max_depth)
+                best_score, previous_last_move = self.minimax(
+                    copy.deepcopy(state).simulate_move(move),
+                    current_depth + 1,
+                    False,
+                    alpha,
+                    beta,
+                    max_depth,
+                )
 
                 if best_score > best:
                     best = best_score
@@ -92,7 +100,14 @@ class ReversiBot:
 
             # Recur for all possible moves for Minimizer
             for move in state.get_valid_moves():
-                best_score, previous_last_move = self.minimax(copy.deepcopy(state).simulate_move(move), current_depth + 1, True, alpha, beta, max_depth)
+                best_score, previous_last_move = self.minimax(
+                    copy.deepcopy(state).simulate_move(move),
+                    current_depth + 1,
+                    True,
+                    alpha,
+                    beta,
+                    max_depth,
+                )
 
                 if best_score < best:
                     best = best_score
@@ -118,25 +133,34 @@ class ReversiBot:
         # print("corner_weight: ", corner_weight)
         # print("x_and_c_weight: ", x_and_c_weight)
 
-        return (1.0) * score + (0.375) * mobility + (2.0) * corner_weight + (0.5) * x_and_c_weight
+        return (
+            (1.0) * score
+            + (0.375) * mobility
+            + (2.0) * corner_weight
+            + (0.5) * x_and_c_weight
+        )
         # return (score_ratio * SCORE_RATIO_NORMALIZER * (.75)) + (mobility * MOBILITY_NORMALIZER * (.25))
 
     def get_mobility(self, state):
-        '''
+        """
         Get the number of valid moves at this state
-        '''
+        """
         number_valid_moves = len(state.get_valid_moves())
         number_valid_enemy_moves = len(state.get_valid_enemy_moves())
 
         if number_valid_moves + number_valid_enemy_moves == 0:
             return 0
 
-        return 100 * (number_valid_moves - number_valid_enemy_moves) / (number_valid_moves + number_valid_enemy_moves)
+        return (
+            100
+            * (number_valid_moves - number_valid_enemy_moves)
+            / (number_valid_moves + number_valid_enemy_moves)
+        )
 
     def get_score_difference(self, state):
-        '''
+        """
         Returns the score comparted to the enemies (as a tuple)
-        '''
+        """
         player = state.turn
         enemy = None
 
@@ -154,7 +178,7 @@ class ReversiBot:
         return 100 * (our_score - enemy_score) / (our_score + enemy_score)
 
     def get_corner_heuristic(self, state):
-        corner_squares = {(0,0), (0,7), (7,0), (7,7)}
+        corner_squares = {(0, 0), (0, 7), (7, 0), (7, 7)}
         board = state.board
         player = state.turn
         number_player_corners = 0
@@ -175,10 +199,27 @@ class ReversiBot:
         if number_player_corners + number_enemy_corners == 0:
             return 0
 
-        return 100 * (number_player_corners - number_enemy_corners) / (number_player_corners + number_enemy_corners)
+        return (
+            100
+            * (number_player_corners - number_enemy_corners)
+            / (number_player_corners + number_enemy_corners)
+        )
 
     def get_x_and_c_heuristic(self, state):
-        x_and_c_squares = {(1,0), (0,1), (1,1), (6,7), (7,6), (6,6), (0,6), (7,1), (6,1), (0,6), (1,6), (1,7)}
+        x_and_c_squares = {
+            (1, 0),
+            (0, 1),
+            (1, 1),
+            (6, 7),
+            (7, 6),
+            (6, 6),
+            (0, 6),
+            (7, 1),
+            (6, 1),
+            (0, 6),
+            (1, 6),
+            (1, 7),
+        }
         board = state.board
         player = state.turn
         number_player_x_and_c = 0
@@ -199,4 +240,8 @@ class ReversiBot:
         if number_player_x_and_c + number_enemy_x_and_c == 0:
             return 0
 
-        return 100 * (number_enemy_x_and_c - number_player_x_and_c) / (number_player_x_and_c + number_enemy_x_and_c)
+        return (
+            100
+            * (number_enemy_x_and_c - number_player_x_and_c)
+            / (number_player_x_and_c + number_enemy_x_and_c)
+        )

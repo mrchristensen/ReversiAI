@@ -5,6 +5,7 @@ import sys
 import time
 import copy
 
+
 class ReversiServerConnection:
     def __init__(self, host, bot_move_num):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -13,7 +14,7 @@ class ReversiServerConnection:
         self.sock.recv(1024)
 
     def get_game_state(self):
-        server_msg = self.sock.recv(1024).decode('utf-8').split('\n')
+        server_msg = self.sock.recv(1024).decode("utf-8").split("\n")
 
         turn = int(server_msg[0])
 
@@ -28,8 +29,9 @@ class ReversiServerConnection:
 
     def send_move(self, move):
         # The 7 - bit is necessary because of the way the server does indexing
-        move_str = str(7 - move[0]) + '\n' + str(move[1]) + '\n'
-        self.sock.send(move_str.encode('utf-8'))
+        move_str = str(7 - move[0]) + "\n" + str(move[1]) + "\n"
+        self.sock.send(move_str.encode("utf-8"))
+
 
 class ReversiGame:
     def __init__(self, host, bot_move_num):
@@ -51,11 +53,12 @@ class ReversiGame:
                 move = self.bot.make_move(state)
                 self.server_conn.send_move(move)
 
+
 class ReversiGameState:
     def __init__(self, board, turn):
-        self.board_dim = 8 # Reversi is played on an 8x8 board
+        self.board_dim = 8  # Reversi is played on an 8x8 board
         self.board = board
-        self.turn = turn # Whose turn is it
+        self.turn = turn  # Whose turn is it
 
     def capture_will_occur(self, row, col, xdir, ydir, could_capture=0):
         # We shouldn't be able to leave the board
@@ -71,10 +74,9 @@ class ReversiGameState:
         if self.space_is_unoccupied(row, col):
             return False
 
-        return self.capture_will_occur(row + ydir,
-                                       col + xdir,
-                                       xdir, ydir,
-                                       could_capture + 1)
+        return self.capture_will_occur(
+            row + ydir, col + xdir, xdir, ydir, could_capture + 1
+        )
 
     def enemy_capture_will_occur(self, row, col, xdir, ydir, could_capture=0):
         enemy = None
@@ -96,10 +98,9 @@ class ReversiGameState:
         if self.space_is_unoccupied(row, col):
             return False
 
-        return self.enemy_capture_will_occur(row + ydir,
-                                       col + xdir,
-                                       xdir, ydir,
-                                       could_capture + 1)
+        return self.enemy_capture_will_occur(
+            row + ydir, col + xdir, xdir, ydir, could_capture + 1
+        )
 
     def space_is_on_board(self, row, col):
         return 0 <= row < self.board_dim and 0 <= col < self.board_dim
@@ -108,8 +109,7 @@ class ReversiGameState:
         return self.board[row, col] == 0
 
     def space_is_available(self, row, col):
-        return self.space_is_on_board(row, col) and \
-               self.space_is_unoccupied(row, col)
+        return self.space_is_on_board(row, col) and self.space_is_unoccupied(row, col)
 
     def is_valid_move(self, row, col):
         if self.space_is_available(row, col):
@@ -128,7 +128,9 @@ class ReversiGameState:
                 for ydir in range(-1, 2):
                     if xdir == ydir == 0:
                         continue
-                    if self.enemy_capture_will_occur(row + ydir, col + xdir, xdir, ydir):
+                    if self.enemy_capture_will_occur(
+                        row + ydir, col + xdir, xdir, ydir
+                    ):
                         return True
 
     def get_valid_moves(self):
@@ -172,7 +174,9 @@ class ReversiGameState:
         # print(new_move[0], ",", new_move[1])
         new_state = copy.deepcopy(self)
         new_board = new_state.board
-        new_board[new_move[0]][new_move[1]] = self.turn  # Put player's new move into the state
+        new_board[new_move[0]][
+            new_move[1]
+        ] = self.turn  # Put player's new move into the state
         # print("State before captures:")
         # print(new_board)
         # print("Checking up")
@@ -209,35 +213,36 @@ class ReversiGameState:
         current_position[0] = new_move[0] + deltaX
         current_position[1] = new_move[1] + deltaY
         spaces_to_change = []
-        for i in range (0, 8):
-            #check for out-of-bounds
-            if(current_position[0] > 7 or current_position[0] < 0 or current_position[1] > 7 or current_position[1] < 0):
+        for i in range(0, 8):
+            # check for out-of-bounds
+            if (
+                current_position[0] > 7
+                or current_position[0] < 0
+                or current_position[1] > 7
+                or current_position[1] < 0
+            ):
                 break
-            #if zero, no pieces can be captured in this direction
-            elif(board[current_position[0]][current_position[1]] == 0):
+            # if zero, no pieces can be captured in this direction
+            elif board[current_position[0]][current_position[1]] == 0:
                 break
-            #if the space is not equal to our number, we add it to the list of pieces to switch & advance to the next space
-            elif(board[current_position[0]][current_position[1]] != self.turn):
+            # if the space is not equal to our number, we add it to the list of pieces to switch & advance to the next space
+            elif board[current_position[0]][current_position[1]] != self.turn:
                 newSpace = (current_position[0], current_position[1])
                 spaces_to_change.append(newSpace)
                 current_position[0] += deltaX
                 current_position[1] += deltaY
                 continue
-            #if the space is equal to our number, we turn all the pieces inside spacesToChange
-            elif(board[current_position[0]][current_position[1]] == self.turn):
+            # if the space is equal to our number, we turn all the pieces inside spacesToChange
+            elif board[current_position[0]][current_position[1]] == self.turn:
                 self.flipPieces(board, spaces_to_change)
                 break
 
         return board
 
-
-
-
-
-    def flipPieces(self, board, opponentStones):
-        for stone in opponentStones:
-            if(board[stone[0]][stone[1]] == 1):
+    def flipPieces(self, board, opponent_stones):
+        for stone in opponent_stones:
+            if board[stone[0]][stone[1]] == 1:
                 board[stone[0]][stone[1]] = 2
-            elif(board[stone[0]][stone[1]] == 2):
+            elif board[stone[0]][stone[1]] == 2:
                 board[stone[0]][stone[1]] = 1
         return board
