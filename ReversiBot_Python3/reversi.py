@@ -59,6 +59,12 @@ class ReversiGameState:
         self.board_dim = 8  # Reversi is played on an 8x8 board
         self.board = board
         self.turn = turn  # Whose turn is it
+        self.enemy_turn = None  # What piece the enemy is moving
+
+        if self.turn == 1:
+            self.enemy_turn = 2
+        else:
+            self.enemy_turn = 1
 
     def capture_will_occur(self, row, col, xdir, ydir, could_capture=0):
         # We shouldn't be able to leave the board
@@ -79,11 +85,7 @@ class ReversiGameState:
         )
 
     def enemy_capture_will_occur(self, row, col, xdir, ydir, could_capture=0):
-        enemy = None
-        if self.turn == 1:
-            enemy = 2
-        else:
-            enemy = 1
+        enemy = self.enemy_turn
 
         # We shouldn't be able to leave the board
         if not self.space_is_on_board(row, col):

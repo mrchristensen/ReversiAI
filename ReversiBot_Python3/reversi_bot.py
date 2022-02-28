@@ -162,12 +162,7 @@ class ReversiBot:
         Returns the score comparted to the enemies (as a tuple)
         """
         player = state.turn
-        enemy = None
-
-        if player == 1:
-            enemy = 2
-        else:
-            enemy = 1
+        enemy = state.enemy_turn
 
         our_score = np.count_nonzero(state.board == player)
         enemy_score = np.count_nonzero(state.board == enemy)
@@ -181,14 +176,10 @@ class ReversiBot:
         corner_squares = {(0, 0), (0, 7), (7, 0), (7, 7)}
         board = state.board
         player = state.turn
+        enemy = state.enemy_turn
         number_player_corners = 0
         number_enemy_corners = 0
 
-        enemy = None
-        if player == 1:
-            enemy = 2
-        else:
-            enemy = 1
 
         for square in corner_squares:
             if board[square[0]][square[1]] == player:
@@ -222,14 +213,10 @@ class ReversiBot:
         }
         board = state.board
         player = state.turn
+        enemy = state.enemy_turn
         number_player_x_and_c = 0
         number_enemy_x_and_c = 0
 
-        enemy = None
-        if player == 1:
-            enemy = 2
-        else:
-            enemy = 1
 
         for square in x_and_c_squares:
             if board[square[0]][square[1]] == player:
