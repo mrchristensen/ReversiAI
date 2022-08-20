@@ -1,4 +1,5 @@
 # Reversi AI
+![](/reversi-open-graph.png)
 
 This AI has been made to play the game [Reversi](https://en.wikipedia.org/wiki/Reversi) (also know as Othello).
 
